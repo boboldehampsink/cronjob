@@ -1,0 +1,15 @@
+{
+    "name": "boboldehampsink/cronjob",
+    "description": "Cronjob Manager plugin for Craft CMS",
+    "authors": [
+        {
+            "name": "Bob Olde Hampsink",
+            "email": "b.oldehampsink@itmundi.nl"
+        }
+    ],
+    "type": "craft-plugin",
+    "require": {
+        "composer/installers": "~1.0",
+        "tiben/crontab-manager": "~1.0"
+    }
+}
