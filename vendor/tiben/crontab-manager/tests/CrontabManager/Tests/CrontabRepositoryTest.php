@@ -24,6 +24,7 @@ use TiBeN\CrontabManager\CrontabAdapter;
 
 /**
  * CrontabRepository class PHPUnit test cases
+ *
  * @author TiBeN
  */
 class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
@@ -72,10 +73,16 @@ class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $expectedCrontabJob3 = new CrontabJob();
         $expectedCrontabJob3->shortCut = 'hourly';
-        $expectedCrontabJob3->taskCommandLine = 'df > /tmp/df_`date +\%d_\%m_\%Y_\%H_\%M`.log';
+        $expectedCrontabJob3->taskCommandLine 
+            = 'df > /tmp/df_`date +\%d_\%m_\%Y_\%H_\%M`.log'
+        ;
         $expectedCrontabJob3->comments = 'third crontabJob';
 
-        $expectedCrontabJobs = array($expectedCrontabJob1, $expectedCrontabJob2, $expectedCrontabJob3);
+        $expectedCrontabJobs = array(
+            $expectedCrontabJob1, 
+            $expectedCrontabJob2, 
+            $expectedCrontabJob3
+        );
 
         $crontabRepository = new CrontabRepository($fakeCrontabAdapter);
         $crontabJobs = $crontabRepository->getJobs();
@@ -144,6 +151,41 @@ class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test finding a job by a regular expression
+     * using the comments
+     */
+    public function testFindJobByRegexUsingComments()
+    {
+        /* Create fake crontabAdapter */
+        $fakeCrontabAdapter = $this->getMock('TiBeN\CrontabManager\CrontabAdapter');
+        $fakeCrontabAdapter
+            ->expects($this->any())
+            ->method('readCrontab')
+            ->will(
+                $this->returnValue("")
+            )
+        ;
+
+        $crontabJob = new CrontabJob();
+        $crontabJob->minutes = '30';
+        $crontabJob->hours = '23';
+        $crontabJob->dayOfMonth = '*';
+        $crontabJob->months = '*';
+        $crontabJob->dayOfWeek = '*';
+        $crontabJob->taskCommandLine = 'df >> /tmp/df.log';
+        $crontabJob->comments = 'Logging disk usage';
+
+        $expectedCrontabJobs = array($crontabJob);
+
+        $crontabRepository = new CrontabRepository($fakeCrontabAdapter);
+        $crontabRepository->addJob($crontabJob);
+
+        $crontabJobs = $crontabRepository->findJobByRegex('/Logging\ disk\ usage/'); 
+
+        $this->assertEquals($expectedCrontabJobs, $crontabJobs);
+    }
+
+    /**
      * This test will modify an existing job and append a new job to the crontab.
      */
     public function testPersist()
@@ -154,7 +196,11 @@ class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
         $fakeCrontabAdapter
             ->expects($this->any())
             ->method('readCrontab')
-            ->will($this->returnValue(file_get_contents($this->fixturesPath . 'simple_crontab.txt')))
+            ->will(
+                $this->returnValue(
+                    file_get_contents($this->fixturesPath . 'simple_crontab.txt')
+                )
+            )
         ;
 
         $fakeCrontabAdapter
@@ -162,7 +208,9 @@ class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
             ->method('writeCrontab')
             ->with(
                 $this->equalTo(
-                    file_get_contents($this->fixturesPath . 'testing_persisted_crontab.txt')
+                    file_get_contents(
+                        $this->fixturesPath . 'testing_persisted_crontab.txt'
+                    )
                 )
             )
         ;
@@ -231,7 +279,9 @@ class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if pass a wrong regular expression when searching by regex throw an invalid regex exception
+     * Test if pass a wrong regular expression when searching 
+     * by regex throw an invalid regex exception
+     *
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Not a valid Regex : preg_match(): No ending delimiter '/' found
      */
@@ -254,6 +304,7 @@ class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test remove an unknown Job
+     *
      * @expectedException LogicException
      * @expectedExceptionMessage This job is not part of this crontab
      */
@@ -278,6 +329,7 @@ class CrontabRepositoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Add an already in the repository job
+     *
      * @expectedException \LogicException
      */
     public function testAddAnAlreadyInTheRepositoryJob()

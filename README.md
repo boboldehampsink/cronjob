@@ -114,7 +114,11 @@ This will have the effect to prepend your cronjob by a "#" in your crontab when 
  - Create ElementType to manage cronjobs from the CP
 
 ## Changelog
-#### 0.1.0
+
+### 0.1.1
+ - Updated dependencies
+
+### 0.1.0
  - Initial release that allows you to manage cronjobs programmatically
 
 ## Credits

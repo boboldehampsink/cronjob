@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'TiBeN\\' => array($vendorDir . '/tiben/crontab-manager/src'),
+    'Composer\\Installers\\' => array($vendorDir . '/composer/installers/src/Composer/Installers'),
 );
